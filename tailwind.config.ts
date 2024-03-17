@@ -18,6 +18,12 @@ const config = {
       },
     },
     extend: {
+      screens: {
+        "tall-sm": { raw: "(min-height: 667px)" },
+        // => @media (min-height: 667px) { ... }
+        "tall-md": { raw: "(min-height: 740px)" },
+        "tall-lg": { raw: "(min-height: 844px)" },
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

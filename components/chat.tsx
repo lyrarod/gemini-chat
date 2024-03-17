@@ -1,12 +1,14 @@
 "use client";
 
+import { useChat } from "ai/react";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-import { useChat } from "ai/react";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+
 import {
   BanIcon,
   BotIcon,
@@ -14,33 +16,55 @@ import {
   SendHorizonalIcon,
   User,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export function Chat() {
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat();
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [isLoading]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
 
   return (
-    <div className="flex flex-col w-full max-w-xl h-[500px] border rounded">
-      {/* <h1 className="flex justify-center p-4 text-lg font-extrabold tracking-wider uppercase">
-        Gemini AI Chatbot
-      </h1> */}
-      <img
-        src="google-gemini.svg"
-        alt=""
-        className="flex self-center w-full p-4 max-w-32 sm:max-w-48"
-      />
+    <div className="flex flex-col w-full max-w-xl h-[580px] tall-sm:h-[637px] tall-md:h-[700px] tall-lg:h-[804px] sm:border rounded sm:mt-10">
+      <div className="flex flex-col items-center justify-center w-full p-4 border-b shadow gap-y-4">
+        <img
+          src="google-gemini.svg"
+          alt=""
+          className="w-full max-w-32 sm:max-w-48"
+        />
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full gap-x-0 sm:static bg-background"
+        >
+          <div className="relative flex w-full">
+            <Input
+              value={input}
+              placeholder={isLoading ? "" : "Say something..."}
+              onChange={handleInputChange}
+              type="search"
+              disabled={isLoading}
+              className="flex pr-16 placeholder:italic"
+            />
+            <Button
+              size={"default"}
+              variant={"outline"}
+              disabled={isLoading || !input.trim()}
+              className="absolute right-0 flex transition rounded-l-none"
+            >
+              {isLoading && !input.trim() && (
+                <LoaderIcon className="animate-spin" />
+              )}
+              {!isLoading && !input.trim() && <BanIcon />}
+              {!isLoading && input.trim() && <SendHorizonalIcon />}
+            </Button>
+          </div>
+        </form>
+      </div>
+
       <ScrollArea className="h-full" ref={scrollRef}>
         <ul>
           {messages.map(({ role, content }, index) => {
@@ -52,13 +76,13 @@ export function Chat() {
                 key={index}
                 className={cn(
                   "flex px-4 py-2 text-sm sm:text-base gap-x-1.5",
-                  isUser && "dark:bg-secondary/20 bg-primary/10"
+                  !isUser && "bg-muted/25"
                 )}
               >
                 <Avatar>
                   <AvatarImage src="" />
                   <AvatarFallback
-                    className={cn(isUser && "bg-background border-2")}
+                    className={cn(isUser && "bg-transparent border")}
                   >
                     {isUser ? <User /> : <BotIcon />}
                   </AvatarFallback>
@@ -73,32 +97,6 @@ export function Chat() {
           })}
         </ul>
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="flex w-full p-4 gap-x-0">
-        <div className="relative flex w-full">
-          <Input
-            value={input}
-            placeholder={isLoading ? "" : "Say something..."}
-            onChange={handleInputChange}
-            type="search"
-            disabled={isLoading}
-            className="flex pr-16 placeholder:italic"
-            autoFocus
-            ref={inputRef}
-          />
-          <Button
-            size={"default"}
-            variant={"outline"}
-            disabled={isLoading || !input.trim()}
-            className="absolute right-0 flex transition rounded-l-none"
-          >
-            {isLoading && !input.trim() && (
-              <LoaderIcon className="animate-spin" />
-            )}
-            {!isLoading && !input.trim() && <BanIcon />}
-            {!isLoading && input.trim() && <SendHorizonalIcon />}
-          </Button>
-        </div>
-      </form>
     </div>
   );
 }
